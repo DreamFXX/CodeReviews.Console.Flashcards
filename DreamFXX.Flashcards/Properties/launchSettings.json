@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "DreamFXX_Flashcards": {
+      "commandName": "Project",
+      "sqlDebugging": true,
+      "nativeDebugging": true
+    }
+  }
+}
