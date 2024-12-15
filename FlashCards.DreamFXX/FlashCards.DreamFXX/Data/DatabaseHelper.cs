@@ -14,8 +14,7 @@ public class DatabaseHelper(string connectionString)
     {
         return new SqlConnection(_connectionString);
     }
-
-    public void ExecuteNonQuery(string query)
+    void ExecuteNonQuery(string query)
     {
         using var connection = GetConnection();
         connection.Open();
@@ -27,7 +26,8 @@ public class DatabaseHelper(string connectionString)
     //
     public void CheckDatabaseExistOrInit()
     {
-        var query = @"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = sys.databases WHERE name = 'Flashcards')
+        var query = @"
+                IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'Flashcards_Data')
                     BEGIN
                         CREATE DATABASE FlashCards_Data
                     END
@@ -40,14 +40,15 @@ public class DatabaseHelper(string connectionString)
 
     public void EnsureTablesExist()
     {
-        var query = @"IF NOT EXISTS (SELECT INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Stacks')
+        var query = @"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Stacks')
                     BEGIN
                         CREATE TABLE Stacks (
                             Id INT PRIMARY KEY IDENTITY,
                             Name NVARCHAR(100) NOT NULL,
                             Description NVARCHAR(1000) NOT NULL
                         )
-                    END";
+                    END
+                    ";
 
 
         ExecuteNonQuery(query);
