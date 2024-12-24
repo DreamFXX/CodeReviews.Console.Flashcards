@@ -29,5 +29,4 @@ var mainMenuOption = new List<MainMenuOption>
     new MainMenuOption() {Id = 8, Description = "Show study sessions per month."},
     new MainMenuOption() {Id = 0, Description = "Exit Application."}
 
-    // + 4 more and exit
 };
