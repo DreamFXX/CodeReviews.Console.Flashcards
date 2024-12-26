@@ -1,7 +1,15 @@
-﻿namespace FlashCards.DreamFXX.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-internal class Card
+namespace FlashCards.DreamFXX.Models;
+
+public class Card
 {
+    public int Id { get; set; }
+    public string Question { get; set; }
+    public string Answer { get; set; }
+    [ForeignKey("CardStack")]
+    public int CardStackId { get; set; }
 
+    public CardStack CardStack { get; set; }
 }
 
