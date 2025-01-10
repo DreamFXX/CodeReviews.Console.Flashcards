@@ -7,15 +7,14 @@ using Spectre.Console;
 string dir = Directory.GetCurrentDirectory();
 string rootDir = Path.Combine(dir, @"..\..\..\");
 
-string appConfigFile = Path.Combine(rootDir, "Properties");
 var cnnConfig = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json")
-    .AddJsonFile($"{appConfigFile}\\appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"{rootDir}//appsettings.json", optional: true, reloadOnChange: true)
     .Build();
 
 string? connectionString = cnnConfig.GetConnectionString("DefaultConnection");
 
-// DbManager
+var DbManager = new DbManager(connectionString);
 var cardStackService = new CardStackService();
 // cards
 // sessions
@@ -30,7 +29,7 @@ var mainMenuRoute = new List<MainMenuRoute>
         new () { Id = 5, Description = "Edit existing card" },
         new () { Id = 6, Description = "Delete existing card" },
         new () { Id = 7, Description = "Study a stack" },
-        new () { Id = 8, Description = "Show complete list of study sessions per month" },
+        new () { Id = 8, Description = "Show list of study sessions per month" },
         new () { Id = 0, Description = "Exit" }
 };
 
@@ -40,21 +39,33 @@ while (true)
 
     var menuSelection = AnsiConsole.Prompt(
         new SelectionPrompt<MainMenuRoute>()
-        .Title("Write, edit, organize and most importantly...\n[yellow][underline]- EDUCATE! -[/][/]")
+        .Title("[yellow]Write, edit, organize and most importantly...[/]\n\t\t[yellow][underline]- EDUCATE! -[/][/]")
         .PageSize(10)
-        .AddChoices(mainMenuRoute).UseConverter(route => route.Description));
+        .AddChoices(mainMenuRoute)
+        .UseConverter(route => route.Description));
 
     if (menuSelection.Id == 0)
     {
+        AnsiConsole.Markup("[red]Goodbye![/]\n");
         break;
     }
+
     switch (menuSelection.Id)
     {
         case 1:
             Console.Clear();
-            cardStackService.CreateNewStack();
+            cardStackService.CreateCardStack();
             break;
-        default:
+        case 2:
+            Console.Clear();
+            cardStackService.EditCardStack();
             break;
+        case 3:
+            Console.Clear();
+            cardStackService.DeleteCardStack();
+            break;
+
     }
+
+    Console.ReadKey();
 }
