@@ -8,17 +8,18 @@ string dir = Directory.GetCurrentDirectory();
 string rootDir = Path.Combine(dir, @"..\..\..\");
 
 var cnnConfig = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json")
+    .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile($"{rootDir}//appsettings.json", optional: true, reloadOnChange: true)
     .Build();
 
 string? connectionString = cnnConfig.GetConnectionString("DefaultConnection");
 
-var DbManager = new DbManager(connectionString);
+var dbManager = new DbManager(connectionString);
 var cardStackService = new CardStackService();
-// cards
-// sessions
-//
+//var cardService = new CardService();
+//var studySessionService = new StudySessionService();
+
+dbManager.CheckIfDbExists();
 
 var mainMenuRoute = new List<MainMenuRoute>
 {
@@ -54,17 +55,16 @@ while (true)
     {
         case 1:
             Console.Clear();
-            cardStackService.CreateCardStack();
+            //cardStackService.CreateCardStack();
             break;
         case 2:
             Console.Clear();
-            cardStackService.EditCardStack();
+            //cardStackService.EditCardStack();
             break;
         case 3:
             Console.Clear();
-            cardStackService.DeleteCardStack();
+            //cardStackService.DeleteCardStack();
             break;
-
     }
 
     Console.ReadKey();
