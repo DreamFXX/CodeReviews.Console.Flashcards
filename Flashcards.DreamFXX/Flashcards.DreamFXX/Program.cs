@@ -19,8 +19,8 @@ var cardStackService = new CardStackService();
 //var cardService = new CardService();
 //var studySessionService = new StudySessionService();
 
-dbManager.CheckIfDbExists();
-
+dbManager.TablesExistOrInitialize();
+// Main Menu interface
 var mainMenuRoute = new List<MainMenuRoute>
 {
         new () { Id = 1, Description = "Create new stack" },
