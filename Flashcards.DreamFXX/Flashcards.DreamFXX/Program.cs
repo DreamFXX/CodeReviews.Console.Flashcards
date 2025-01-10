@@ -1,5 +1,6 @@
 ﻿using Flashcards.DreamFXX.Data;
 using Flashcards.DreamFXX.Models;
+using Flashcards.DreamFXX.Services;
 using Microsoft.Extensions.Configuration;
 using Spectre.Console;
 
@@ -14,7 +15,11 @@ var cnnConfig = new ConfigurationBuilder()
 
 string? connectionString = cnnConfig.GetConnectionString("DefaultConnection");
 
-
+// DbManager
+var cardStackService = new CardStackService();
+// cards
+// sessions
+//
 
 var mainMenuRoute = new List<MainMenuRoute>
 {
@@ -39,4 +44,17 @@ while (true)
         .PageSize(10)
         .AddChoices(mainMenuRoute).UseConverter(route => route.Description));
 
+    if (menuSelection.Id == 0)
+    {
+        break;
+    }
+    switch (menuSelection.Id)
+    {
+        case 1:
+            Console.Clear();
+            cardStackService.CreateNewStack();
+            break;
+        default:
+            break;
+    }
 }
