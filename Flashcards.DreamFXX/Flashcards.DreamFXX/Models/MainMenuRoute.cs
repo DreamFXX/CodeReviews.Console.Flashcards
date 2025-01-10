@@ -1,6 +1,6 @@
 ﻿namespace Flashcards.DreamFXX.Models;
 
-public class MenuRoute
+public class MainMenuRoute
 {
     public int Id { get; set; }
     public string? Description { get; set; }

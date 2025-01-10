@@ -1,6 +1,5 @@
 ﻿using Flashcards.DreamFXX.Data;
 using Flashcards.DreamFXX.Models;
-using Flashcards.DreamFXX.Services;
 using Microsoft.Extensions.Configuration;
 using Spectre.Console;
 
@@ -15,15 +14,29 @@ var cnnConfig = new ConfigurationBuilder()
 
 string? connectionString = cnnConfig.GetConnectionString("DefaultConnection");
 
-var dbManager = new DbManager(connectionString);
-var cardStackService = new CardStackService(dbManager);
-var cardService = new CardService(dbManager);
-var studySessionService = new StudySessionService(dbManager);
 
-dbManager.DbExistCheck();
 
-var mainMenuRoutes = new List<mainMenuRoutes>
+var mainMenuRoute = new List<MainMenuRoute>
 {
-    new() = { }
-}
+        new () { Id = 1, Description = "Create new stack" },
+        new () { Id = 2, Description = "Edit existing stack" },
+        new () { Id = 3, Description = "Delete existing stack" },
+        new () { Id = 4, Description = "Create new card" },
+        new () { Id = 5, Description = "Edit existing card" },
+        new () { Id = 6, Description = "Delete existing card" },
+        new () { Id = 7, Description = "Study a stack" },
+        new () { Id = 8, Description = "Show complete list of study sessions per month" },
+        new () { Id = 0, Description = "Exit" }
+};
 
+while (true)
+{
+    Console.Clear();
+
+    var menuSelection = AnsiConsole.Prompt(
+        new SelectionPrompt<MainMenuRoute>()
+        .Title("Write, edit, organize and most importantly...\n[yellow][underline]- EDUCATE! -[/][/]")
+        .PageSize(10)
+        .AddChoices(mainMenuRoute).UseConverter(route => route.Description));
+
+}
