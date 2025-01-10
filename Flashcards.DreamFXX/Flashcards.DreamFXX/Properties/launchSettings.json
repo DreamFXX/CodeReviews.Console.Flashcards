@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Flashcards.DreamFXX": {
-      "commandName": "Project",
-      "remoteDebugEnabled": false,
-      "sqlDebugging": true
-    }
-  }
-}

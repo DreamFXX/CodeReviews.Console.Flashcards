@@ -4,11 +4,13 @@ using Spectre.Console;
 string dir = Directory.GetCurrentDirectory();
 string rootDir = Path.Combine(dir, @"..\..\..\");
 
-string appConfigFile = Path.Combine(rootDir, "Properties\\appsettings.json");
+string appConfigFile = Path.Combine(rootDir, "Properties");
+var cnnConfig = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json")
+    .AddJsonFile($"{appConfigFile}\\appsettings.json", optional: true, reloadOnChange: true)
+    .Build();
 
-
-var cnnConfig = new ConfigurationBuilder();
-
+string? connectionString = cnnConfig.GetConnectionString("DefaultConnection");
 
 
 
