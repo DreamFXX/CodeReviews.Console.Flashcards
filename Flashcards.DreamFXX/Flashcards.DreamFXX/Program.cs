@@ -15,12 +15,12 @@ var cnnConfig = new ConfigurationBuilder()
 string? connectionString = cnnConfig.GetConnectionString("DefaultConnection");
 
 var dbManager = new DbManager(connectionString);
-var cardStackService = new CardStackService();
+//var cardStackService = new CardStackService();
 //var cardService = new CardService();
 //var studySessionService = new StudySessionService();
 
 dbManager.TablesExistOrInitialize();
-// Main Menu interface
+
 var mainMenuRoute = new List<MainMenuRoute>
 {
         new () { Id = 1, Description = "Create new stack" },
@@ -64,6 +64,10 @@ while (true)
         case 3:
             Console.Clear();
             //cardStackService.DeleteCardStack();
+            break;
+        case 4:
+            Console.Clear();
+            dbManager.CheckDatabaseExists();
             break;
     }
 
