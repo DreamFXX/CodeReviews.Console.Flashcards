@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Flashcards.DreamFXX.Models;    
+namespace Flashcards.DreamFXX.Models;
 
 public class Card
 {
