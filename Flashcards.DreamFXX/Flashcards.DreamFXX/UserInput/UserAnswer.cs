@@ -1,4 +1,5 @@
-﻿namespace Flashcards.DreamFXX.UserInput;
+﻿using Flashcards.DreamFXX.Validation;
+namespace Flashcards.DreamFXX.UserInput;
 
 public class UserAnswer
 {
@@ -6,7 +7,7 @@ public class UserAnswer
     {
         Console.WriteLine(message);
         string? result = Console.ReadLine();
-        if (true)
+        if (ValidationOfInput.ValidateString(message))
         {
             return result;
         }

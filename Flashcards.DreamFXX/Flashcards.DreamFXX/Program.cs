@@ -18,7 +18,7 @@ var dbManager = new DbManager(connectionString);
 //var cardService = new CardService();
 //var studySessionService = new StudySessionService();
 
-dbManager.TablesExistOrInitialize();
+dbManager.CheckDatabaseExists();
 
 var mainMenuRoute = new List<MainMenuRoute>
 {

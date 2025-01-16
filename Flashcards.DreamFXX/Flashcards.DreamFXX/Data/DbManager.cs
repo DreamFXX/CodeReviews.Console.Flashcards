@@ -1,5 +1,7 @@
-﻿using Flashcards.DreamFXX.Models;
+﻿using System.Data.Common;
+using Flashcards.DreamFXX.Models;
 using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 
 namespace Flashcards.DreamFXX.Data;
 
@@ -27,53 +29,52 @@ public class DbManager(string connectionString)
                 BEGIN
                     CREATE DATABASE FlashCards_Data
                 END
-              ";
+            ";
 
         ExecuteNonQuery(query);
 
         TablesExistOrInitialize();
     }
 
-
     public void TablesExistOrInitialize()
     {
         var query = @"
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Stacks')
             BEGIN
-              CREATE TABLE Stacks (
-                  Id INT PRIMARY KEY IDENTITY(1,1),
-                  Name NVARCHAR(100) NOT NULL,
-                  Description NVARCHAR(1000) NOT NULL
-              )
+                CREATE TABLE Stacks (
+                Id INT PRIMARY KEY IDENTITY(1,1),
+                Name NVARCHAR(100) NOT NULL,
+                Description NVARCHAR(1000) NOT NULL
+                )
             END
 
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Cards')
             BEGIN
-              CREATE TABLE Cards (
-                  Id INT PRIMARY KEY IDENTITY,
-                  Question NVARCHAR(1000) NOT NULL,
-                  Answer NVARCHAR(1000) UNIQUE NOT NULL,
-                  StackId INT NOT NULL,
-                  FOREIGN KEY (StackId) REFERENCES Stacks(Id)
+                CREATE TABLE Cards (
+                Id INT PRIMARY KEY IDENTITY,
+                Question NVARCHAR(1000) NOT NULL,
+                Answer NVARCHAR(1000) UNIQUE NOT NULL,
+                StackId INT NOT NULL,
+                FOREIGN KEY (StackId) REFERENCES Stacks(Id)
                )
             END
 
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'StudySessions')
             BEGIN
-              CREATE TABLE StudySessions (
-              Id INT PRIMARY KEY IDENTITY,
-              StackId INT NOT NULL,
-              EndTime DATETIME NOT NULL,
-              CorrectAnswers INT NOT NULL,
-              WrongAnswers INT NOT NULL,
-              FOREIGN KEY (StackId) REFERENCES Stacks(Id) ON DELETE CASCADE
-              )
-           END
+                CREATE TABLE StudySessions (
+                Id INT PRIMARY KEY IDENTITY,
+                StackId INT NOT NULL,
+                EndTime DATETIME NOT NULL,
+                CorrectAnswers INT NOT NULL,
+                WrongAnswers INT NOT NULL,
+                FOREIGN KEY (StackId) REFERENCES Stacks(Id) ON DELETE CASCADE
+                )
+            END
         ";
 
         ExecuteNonQuery(query);
 
-
+        SeedDb();
     }
 
     public void SeedDb()
@@ -146,8 +147,6 @@ public class DbManager(string connectionString)
         ExecuteNonQuery(query);
     }
 
-
-
     public List<CardStack>? GetCardStacks()
     {
         var stacks = new List<CardStack>();
@@ -155,8 +154,8 @@ public class DbManager(string connectionString)
 
         using var connection = ConnectionInit();
         connection.Open();
-        using var command = new SqlCommand(query, connection);
-        using var reader = command.ExecuteReader();
+        var command = new SqlCommand(query, connection);
+        var reader = command.ExecuteReader();
 
         while (reader.Read())
         {
@@ -169,6 +168,141 @@ public class DbManager(string connectionString)
             stacks.Add(stack);
         }
 
-        return null;
+        if (stacks.Count == 0)
+        {
+            Console.WriteLine("[red]Reader had not found any rows of stored data (Stack count is zero.).[/]");
+            return null;
+        }
+
+        return stacks;
     }
+
+    public List<Card>? GetCards()
+    {
+        var cards = new List<Card>();
+        var query = "SELECT * FROM Cards";
+
+        using var connection = ConnectionInit();
+        connection.Open();
+        using var command = new SqlCommand(query, connection);
+        using var reader = command.ExecuteReader();
+
+        while (reader.Read())
+        {
+            var card = new Card
+            {
+                Id = reader.GetInt32(0),
+                Question = reader.GetString(1),
+                Answer = reader.GetString(2),
+                CardStackId = reader.GetInt32(3)
+            };
+            cards.Add(card);
+        }
+        if (cards.Count == 0)
+        {
+            Console.WriteLine("[red]Reader had not found any rows of stored data (Cards Count is zero.).[/]");
+            return null;
+        }
+        return cards;
+    }
+
+    public void UpdateCard(string question, string answer, int cardId)
+    {
+        var query = $"UPDATE Cards SET Question = '{question}', Answer = '{answer}' WHERE Id = {cardId}";
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            connection.Open();
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@question", question);
+                command.Parameters.AddWithValue("@answer", answer);
+                command.Parameters.AddWithValue("@cardId", cardId);
+                command.ExecuteNonQuery();
+            };
+        }
+    }
+
+    public void DeleteCard(int cardId)
+    {
+        var query = $"DELETE FROM Cards WHERE Id = @cardId";
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            connection.Open();
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@cardId", cardId);
+                command.ExecuteNonQuery();
+            };
+        }
+    }
+
+    public void CreateCard(string question, string answer, int stackId)
+    {
+        var query = "INSERT INTO Cards (Question, Answer, StackId) VALUES (@question, @answer, @stackId)";
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            connection.Open();
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@question", question);
+                command.Parameters.AddWithValue("@answer", answer);
+                command.Parameters.AddWithValue("@stackId", stackId);
+                command.ExecuteNonQuery();
+            };
+        }
+    }
+
+    public void CreateStack(string name, string description)
+    {
+        var query = "INSERT INTO Stacks (Name, Description) VALUES (@name, @description)";
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            connection.Open();
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@description", description);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public void UpdateStack(string name, string description, int stackId)
+    {
+        var query = $"UPDATE Stacks SET Name = @name, Description = @description WHERE Id = @id";
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            connection.Open();
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@description", description);
+                command.Parameters.AddWithValue("@id", stackId);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
+
+    public void DeleteStack(int stackId)
+    {
+        var query = "DELETE FROM Stacks WHERE Id = @id";
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            connection.Open();
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", @stackId);
+                command.ExecuteNonQuery();
+            }
+        }
+    }
+
+
 }
+
+
