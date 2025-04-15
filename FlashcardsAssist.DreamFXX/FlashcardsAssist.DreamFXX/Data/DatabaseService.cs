@@ -1,4 +1,4 @@
-﻿using Dapper;
+﻿﻿﻿﻿using Dapper;
 using FlashcardsAssist.DreamFXX.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -105,20 +105,41 @@ public class DatabaseService
     {
         using (var connection = new SqlConnection(_connectionString))
         {
+            // Fetch the actual Flashcard objects including the database Id
             var flashcards = (await connection.QueryAsync<Flashcard>(
-                "SELECT f.Id, f.Front, f.Back FROM Flashcards f " +
+                "SELECT f.Id, f.StackId, f.Front, f.Back FROM Flashcards f " + // Ensure Id is selected
                 "INNER JOIN Stacks s ON f.StackId = s.Id " +
                 "WHERE s.Name = @Name " +
-                "ORDER BY f.Id", new { Name = stackName })).ToList();
+                "ORDER BY f.Id", new { Name = stackName })).ToList(); // Order by DB Id to ensure consistent DisplayId
 
+            // Map to DTOs, assigning sequential DisplayId and storing the DatabaseId
             var flashcardDtos = flashcards.Select((card, index) => new FlashcardDto
             {
-                Id = index + 1,
+                DisplayId = index + 1, // Sequential ID for display
+                DatabaseId = card.Id,  // Actual database ID
                 Front = card.Front,
                 Back = card.Back
             }).ToList();
 
             return flashcardDtos;
+        }
+    }
+
+    public async Task UpdateFlashcardAsync(int databaseId, string front, string back)
+    {
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            await connection.ExecuteAsync(
+                "UPDATE Flashcards SET Front = @Front, Back = @Back WHERE Id = @DatabaseId",
+                new { Front = front, Back = back, DatabaseId = databaseId });
+        }
+    }
+
+    public async Task DeleteFlashcardAsync(int databaseId)
+    {
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            await connection.ExecuteAsync("DELETE FROM Flashcards WHERE Id = @DatabaseId", new { DatabaseId = databaseId });
         }
     }
 

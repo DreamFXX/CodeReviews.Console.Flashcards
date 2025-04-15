@@ -152,6 +152,8 @@ public class ConsoleUI
                 {
                     "Add New Flashcard",
                     "View Flashcards in Stack",
+                    "Update Flashcard", // New option
+                    "Delete Flashcard", // New option
                     "Back to Main Menu"
                 }));
 
@@ -163,6 +165,14 @@ public class ConsoleUI
                 break;
             case "View Flashcards in Stack":
                 await _flashcardsService.ViewFlashcardsAsync();
+                PressEnterToContinue();
+                break;
+            case "Update Flashcard": // New case
+                await _flashcardsService.UpdateFlashcardAsync();
+                PressEnterToContinue();
+                break;
+            case "Delete Flashcard": // New case
+                await _flashcardsService.DeleteFlashcardAsync();
                 PressEnterToContinue();
                 break;
             case "Back to Main Menu":
