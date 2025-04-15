@@ -3,7 +3,7 @@
     "FlashcardsAssist.DreamFXX": {
       "commandName": "Project",
       "hotReloadEnabled": true,
-      "nativeDebugging": false,
+      "nativeDebugging": true,
       "sqlDebugging": false,
       "jsWebView2Debugging": false
     }
